@@ -99,9 +99,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (answer == answerIsTrue) {
             addPoints();
             toastMessageId = R.string.correct_answer;
+            currentQIndex = (currentQIndex + 1) % questionList.size();
+            updateQuestion();
         } else {
             removePoints();
             toastMessageId = R.string.wrong_answer;
+            currentQIndex = (currentQIndex + 1) % questionList.size();
+            updateQuestion();
         }
         Toast.makeText(MainActivity.this, toastMessageId, Toast.LENGTH_SHORT).show();
     }
@@ -122,8 +126,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             scoreTextView.setText(MessageFormat.format("Current Score: {0}", String.valueOf(score.getScore())));
         }
     }
-
-    //                Update question depending on current index
+    // Update question depending on current index
     private void updateQuestion() {
         String question = questionList.get(currentQIndex).getAnswer();
         questionTextView.setText(question);
