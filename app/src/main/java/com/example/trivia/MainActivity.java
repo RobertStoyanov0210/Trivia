@@ -1,11 +1,11 @@
 package com.example.trivia;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ImageButton nextBtn;
     private ImageButton prevBtn;
 
-    private int currentQuestionIndex = 0;
+    private int currentQIndex = 0;
     private List<Question> questionList;
 
     @Override
@@ -48,8 +48,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void processFinished(ArrayList<Question> questionArrayList) {
 
-                questionTextView.setText(questionArrayList.get(currentQuestionIndex).getAnswer());
-                Log.d("Inside", "onCreate: " + questionArrayList);
+                questionTextView.setText(questionArrayList.get(currentQIndex).getAnswer());
+                questionCounterTextView.setText((currentQIndex + 1) + " of " + questionList.size());
+//                Log.d("Inside", "onCreate: " + questionArrayList);
             }
         });
     }
@@ -58,25 +59,39 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.prev_btn:
-                if (currentQuestionIndex > 0)
-                    currentQuestionIndex = (currentQuestionIndex - 1) % questionList.size();
+                if (currentQIndex > 0)
+                    currentQIndex = (currentQIndex - 1) % questionList.size();
 
                 updateQuestion();
                 break;
             case R.id.next_btn:
-                currentQuestionIndex = (currentQuestionIndex + 1) % questionList.size();
+                currentQIndex = (currentQIndex + 1) % questionList.size();
                 updateQuestion();
                 break;
             case R.id.true_btn:
+                checkAnswer(true);
                 break;
             case R.id.false_btn:
+                checkAnswer(false);
                 break;
         }
     }
 
+    private void checkAnswer(boolean answer) {
+        boolean answerIsTrue = questionList.get(currentQIndex).isAnswerTrue();
+        int toastMessageId = 0;
+        if (answer == answerIsTrue) {
+            toastMessageId = R.string.correct_answer;
+        } else {
+            toastMessageId = R.string.wrong_answer;
+        }
+        Toast.makeText(MainActivity.this, toastMessageId, Toast.LENGTH_SHORT).show();
+    }
+
     //                Update question depending on current index
     private void updateQuestion() {
-        String question = questionList.get(currentQuestionIndex).getAnswer();
+        String question = questionList.get(currentQIndex).getAnswer();
         questionTextView.setText(question);
+        questionCounterTextView.setText((currentQIndex + 1) + " of " + questionList.size());
     }
 }
