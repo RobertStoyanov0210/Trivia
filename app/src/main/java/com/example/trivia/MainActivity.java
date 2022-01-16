@@ -2,6 +2,10 @@ package com.example.trivia;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -12,17 +16,67 @@ import com.example.trivia.model.Question;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+    private TextView questionTextView;
+    private TextView questionCounterTextView;
+    private Button trueBtn;
+    private Button falseBtn;
+    private ImageButton nextBtn;
+    private ImageButton prevBtn;
+
+    private int currentQuestionIndex = 0;
+    private List<Question> questionList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        List<Question> questionList = new QuestionBank().getQuestions(new AnswerListAsyncResponse() {
+
+        nextBtn = findViewById(R.id.next_btn);
+        prevBtn = findViewById(R.id.prev_btn);
+        trueBtn = findViewById(R.id.true_btn);
+        falseBtn = findViewById(R.id.false_btn);
+        questionCounterTextView = findViewById(R.id.counter_text);
+        questionTextView = findViewById(R.id.question_textview);
+
+        nextBtn.setOnClickListener(this);
+        prevBtn.setOnClickListener(this);
+        falseBtn.setOnClickListener(this);
+        trueBtn.setOnClickListener(this);
+
+        questionList = new QuestionBank().getQuestions(new AnswerListAsyncResponse() {
             @Override
             public void processFinished(ArrayList<Question> questionArrayList) {
+
+                questionTextView.setText(questionArrayList.get(currentQuestionIndex).getAnswer());
                 Log.d("Inside", "onCreate: " + questionArrayList);
             }
         });
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.prev_btn:
+                if (currentQuestionIndex > 0)
+                    currentQuestionIndex = (currentQuestionIndex - 1) % questionList.size();
+
+                updateQuestion();
+                break;
+            case R.id.next_btn:
+                currentQuestionIndex = (currentQuestionIndex + 1) % questionList.size();
+                updateQuestion();
+                break;
+            case R.id.true_btn:
+                break;
+            case R.id.false_btn:
+                break;
+        }
+    }
+
+    //                Update question depending on current index
+    private void updateQuestion() {
+        String question = questionList.get(currentQuestionIndex).getAnswer();
+        questionTextView.setText(question);
     }
 }
