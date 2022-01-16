@@ -18,7 +18,7 @@ import java.util.List;
 public class QuestionBank {
     ArrayList<Question> questionArrayList = new ArrayList<>();
 
-    public List<Question> getQuestions() {
+    public List<Question> getQuestions(final AnswerListAsyncResponse callBack) {
         String url = "https://raw.githubusercontent.com/curiousily/simple-quiz/master/script/statements-data.json";
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, url, (JSONArray) null,
                 new Response.Listener<JSONArray>() {
@@ -29,14 +29,16 @@ public class QuestionBank {
                                 Question question = new Question();
                                 question.setAnswer(response.getJSONArray(i).get(0).toString());
                                 question.setAnswerTrue(response.getJSONArray(i).getBoolean(1));
+
                                 //Add Question objects to list
                                 questionArrayList.add(question);
-                                Log.d("JSON", "onResponse: " + response.getJSONArray(i).get(0));
-                                Log.d("JSON", "onResponse: " + response.getJSONArray(i).getBoolean(1));
+//                                Log.d("JSON", "onResponse: " + response.getJSONArray(i).get(0));
+//                                Log.d("JSON", "onResponse: " + response.getJSONArray(i).getBoolean(1));
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
                         }
+                        if(null != callBack) callBack.processFinished(questionArrayList);
                     }
                 }, new Response.ErrorListener() {
             @Override
@@ -47,7 +49,6 @@ public class QuestionBank {
 
         AppController.getInstance().addToRequestQueue(jsonArrayRequest);
         return questionArrayList;
-
     }
 
 }
