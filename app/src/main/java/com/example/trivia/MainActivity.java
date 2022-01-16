@@ -13,7 +13,9 @@ import com.example.trivia.data.AnswerListAsyncResponse;
 import com.example.trivia.data.QuestionBank;
 import com.example.trivia.model.Question;
 import com.example.trivia.model.Score;
+import com.example.trivia.util.Prefs;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +23,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView questionTextView;
     private TextView questionCounterTextView;
     private TextView scoreTextView;
+    private TextView highestScoreTextView;
     private Button trueBtn;
     private Button falseBtn;
     private ImageButton nextBtn;
@@ -30,7 +33,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private List<Question> questionList;
     // Score
     private int scoreCounter = 0;
-    Score score;
+    private Score score;
+    private Prefs prefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +42,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
         scoreTextView = findViewById(R.id.score_text);
+        highestScoreTextView = findViewById(R.id.highest_score_text);
         nextBtn = findViewById(R.id.next_btn);
         prevBtn = findViewById(R.id.prev_btn);
         trueBtn = findViewById(R.id.true_btn);
@@ -51,6 +56,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         trueBtn.setOnClickListener(this);
 
         score = new Score();
+        prefs = new Prefs(MainActivity.this);
+
+        highestScoreTextView.setText(MessageFormat.format("Highest Score: {0}", String.valueOf(prefs.getHighScore())));
+
         questionList = new QuestionBank().getQuestions(new AnswerListAsyncResponse() {
             @Override
             public void processFinished(ArrayList<Question> questionArrayList) {
@@ -100,18 +109,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void addPoints() {
         scoreCounter += 10;
         score.setScore(scoreCounter);
-        scoreTextView.setText(String.valueOf(score.getScore()));
+        scoreTextView.setText(MessageFormat.format("Current Score: {0}", String.valueOf(score.getScore())));
     }
 
     private void removePoints() {
         scoreCounter -= 3;
         if (scoreCounter > 3) {
             score.setScore(scoreCounter);
-            scoreTextView.setText(String.valueOf(score.getScore()));
-        }
-        else {
+            scoreTextView.setText(MessageFormat.format("Current Score: {0}", String.valueOf(score.getScore())));
+        } else {
             score.setScore(0);
-            scoreTextView.setText(String.valueOf(score.getScore()));
+            scoreTextView.setText(MessageFormat.format("Current Score: {0}", String.valueOf(score.getScore())));
         }
     }
 
@@ -120,5 +128,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         String question = questionList.get(currentQIndex).getAnswer();
         questionTextView.setText(question);
         questionCounterTextView.setText((currentQIndex + 1) + " of " + questionList.size());
+    }
+
+    @Override
+    protected void onPause() {
+        prefs.saveHighScore(score.getScore());
+        super.onPause();
     }
 }
